@@ -181,7 +181,7 @@ public class Scraper {
     private Document getDoc() {
         try {
             // TODO: Update with the "proper" address after the vacations
-            Document document = Jsoup.connect("https://www.karkafeerna.fi/?year=2026&week=03").get();
+            Document document = Jsoup.connect("https://www.karkafeerna.fi/").get();
             document.select(".food-star").remove();
             return document;
         } catch (IOException ex) {
