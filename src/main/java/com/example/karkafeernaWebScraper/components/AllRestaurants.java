@@ -2,16 +2,17 @@ package com.example.karkafeernaWebScraper.components;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class AllRestaurants {
 
     private final String updatedAt;
-    private final Set<Restaurant> restaurants;
+    private final LinkedHashSet<Restaurant> restaurants;
 
     private final String source = "https://www.karkafeerna.fi";
 
-    public AllRestaurants(Set<Restaurant> restaurants) {
+    public AllRestaurants(LinkedHashSet<Restaurant> restaurants) {
         this.restaurants = restaurants;
         this.updatedAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
