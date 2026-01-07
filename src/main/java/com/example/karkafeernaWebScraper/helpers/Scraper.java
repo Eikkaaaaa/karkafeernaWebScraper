@@ -40,21 +40,44 @@ public class Scraper {
      */
     private void addRestaurantToList(Elements elements, AllRestaurants allRestaurants) {
 
+        String[] mealSkipList = {
+                "GALLERIET (11-14.30)", "ASTRA DELIGHTS (10.30-14.00)"
+        };
+
         for (Element element : elements) {
 
             // Get the restaurants name from the logo image file
             String restaurantName = element.select("img[^assets/images/logos/restaurant], [alt]").attr("alt");
 
-            Restaurant restaurant = new Restaurant(restaurantName);
+            String openingHours = getOpeningHours(element);
+
+            Restaurant restaurant = new Restaurant(restaurantName,  openingHours);
 
             // Get all meal items for current restaurant
             Elements meals = element.getElementsByClass("meal");
 
             // Loop through every single meal
             for (Element meal : meals) {
-                restaurant.addMeal(getMealInfo(meal));
+                Meal m = getMealInfo(meal);
+                if (!Arrays.asList(mealSkipList).contains(m.name())) {
+                    restaurant.addMeal(m);
+                }
             }
             allRestaurants.addRestaurant(restaurant);
+        }
+    }
+
+    /**
+     * Fetches the opening hour string from the same element where the image for {@code restaurantName} parameter is located
+     * @param element HTML element to search for the opening hours
+     * @return Parsed opening hours string
+     */
+    private String getOpeningHours(Element element) {
+
+        try {
+            return element.select("p").first().text().trim();
+        } catch (NullPointerException e) {
+            return "No opening hours found";
         }
     }
 
@@ -81,8 +104,17 @@ public class Scraper {
         // Get the price group of the meal
         String priceGroup = meal.getElementsByClass("group-title").text();
 
+        // Get the prices for the meal
+        LinkedHashMap<String, Float> prices = getPrices(meal);
+
+        // Create a meal object from the fetched meal info
+        return new Meal(mealName, new LinkedHashSet<>(allergens), macros, priceGroup, prices);
+    }
+
+    private LinkedHashMap<String, Float> getPrices(Element element){
+
         // Get the "class=info" elements that contain the prices
-        Elements updatedMeal = meal.getElementsByClass("info");
+        Elements updatedMeal = element.getElementsByClass("info");
 
         LinkedHashMap<String, Float> prices = new LinkedHashMap<>();
 
@@ -97,9 +129,7 @@ public class Scraper {
                 prices = formatPrices(originalPrices);
             }
         }
-
-        // Create a meal object from the fetched meal info
-        return new Meal(mealName, new LinkedHashSet<>(allergens), macros, priceGroup, prices);
+        return prices;
     }
 
     /**
@@ -180,7 +210,6 @@ public class Scraper {
      */
     private Document getDoc() {
         try {
-            // TODO: Update with the "proper" address after the vacations
             Document document = Jsoup.connect("https://www.karkafeerna.fi/").get();
             document.select(".food-star").remove();
             return document;

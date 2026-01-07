@@ -1,0 +1,17 @@
+Lowest class
+    Food class that has 2 attributes:
+        String foods name
+        SetList<String> allergens
+        String macros
+
+        pricing could be added later on to the class
+
+Middle class
+    Restaurant class that has 2 attributes:
+        String name
+        SetList<Food> where are all the foods for that restaurant has
+
+Topmost class
+    AllRestaurants that has 1 attribute:
+        SetList<Restaurant> that holds all the restaurants
+
