@@ -1,6 +1,9 @@
-package com.example.karkafeernaWebScraper.helpers;
+package com.eikka.karkafeernaWebScraper.helpers;
 
-import com.example.karkafeernaWebScraper.components.*;
+import com.eikka.karkafeernaWebScraper.components.AllRestaurants;
+import com.eikka.karkafeernaWebScraper.components.Meal;
+import com.eikka.karkafeernaWebScraper.components.Restaurant;
+import com.eikka.karkafeernaWebScraper.components.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

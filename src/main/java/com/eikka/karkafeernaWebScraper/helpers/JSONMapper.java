@@ -1,4 +1,4 @@
-package com.example.karkafeernaWebScraper.helpers;
+package com.eikka.karkafeernaWebScraper.helpers;
 
 import com.google.gson.Gson;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -9,11 +9,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @Component
-public class JSONMaker {
+public class JSONMapper {
 
     private final Gson GSON = new Gson();
 
-    public JSONMaker() {
+    public JSONMapper() {
     }
 
     /**

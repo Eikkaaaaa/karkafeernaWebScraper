@@ -1,8 +1,6 @@
-package com.example.karkafeernaWebScraper.components;
+package com.eikka.karkafeernaWebScraper.components;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 public class Restaurant {
 
@@ -23,6 +21,7 @@ public class Restaurant {
     public String toString() {
         return "Restaurant{" +
                 "name='" + restaurant + '\'' +
+                ", openingHours='" + openingHours + '\'' +
                 ", foodItems=" + foodItems +
                 '}';
     }

@@ -1,9 +1,8 @@
-package com.example.karkafeernaWebScraper.components;
+package com.eikka.karkafeernaWebScraper.components;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 public class AllRestaurants {
 

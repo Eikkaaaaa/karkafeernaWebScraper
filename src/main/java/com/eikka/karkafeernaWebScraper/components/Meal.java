@@ -1,4 +1,4 @@
-package com.example.karkafeernaWebScraper.components;
+package com.eikka.karkafeernaWebScraper.components;
 
 import java.util.LinkedHashMap;
 import java.util.Set;

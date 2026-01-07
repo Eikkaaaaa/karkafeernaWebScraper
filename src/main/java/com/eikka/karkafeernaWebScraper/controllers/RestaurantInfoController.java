@@ -1,4 +1,4 @@
-package com.example.karkafeernaWebScraper.controllers;
+package com.eikka.karkafeernaWebScraper.controllers;
 
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;

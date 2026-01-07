@@ -1,4 +1,4 @@
-package com.example.karkafeernaWebScraper;
+package com.eikka.karkafeernaWebScraper;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

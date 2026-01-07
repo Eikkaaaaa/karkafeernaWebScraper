@@ -1,4 +1,4 @@
-package com.example.karkafeernaWebScraper.config;
+package com.eikka.karkafeernaWebScraper.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
