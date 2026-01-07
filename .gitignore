@@ -31,8 +31,6 @@ build/
 ### VS Code ###
 .vscode/
 
-files
-
 # Package Files #
 *.jar
 *.war

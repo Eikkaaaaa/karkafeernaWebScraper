@@ -6,11 +6,13 @@ import java.util.Set;
 
 public class Restaurant {
 
-    private String restaurant;
-    private LinkedHashSet<Meal> foodItems = new LinkedHashSet<>();
+    private final String restaurant;
+    private final String openingHours;
+    private final LinkedHashSet<Meal> foodItems = new LinkedHashSet<>();
 
-    public Restaurant(String name) {
+    public Restaurant(String name, String openingHours) {
         this.restaurant = name;
+        this.openingHours = openingHours;
     }
 
     public void addMeal(Meal meal){
