@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>skol mat REST API</title>
+    <style>
+        body {
+            background-color: #131313;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        h1 {
+            color: #F1F5F9;
+        }
+        h2{
+            color: #F1F5F9;
+        }
+        h3 {
+            color: #F1F5F9;
+        }
+        h4 {
+            color: #F1F5F9;
+        }
+        ul {
+            color: #F1F5F9
+        }
+        p {
+            color: #F1F5F9;
+        }
+        code {
+            color: #F1F5F9;
+        }
+        a {
+            color: #F1F5F9;
+            text-decoration: none;
+        }
+        .footerInfoList {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: inline;
+            line-height: 0.3;
+        }
+        .footerListElement {
+            display: inline-block;
+            padding-right: 20px;
+        }
+    </style>
+</head>
+<body style="padding: 40px">
+    <h1>Skol mat REST API</h1>
+
+    <p>This api is a webscraper that fetches data daily from Kårkaféernas website and then parses it to a JSON that can later be queried</p>
+    <p>The program scrapes data only one single time a day and saves it to a file locally on the server</p>
+    <p>When the API is queried, the program fetches the data from said file and sends it to the client</p>
+
+    <h4>The API can be queried in two ways</h4>
+    <ul>
+        <li>Normal HTTP REST API</li>
+        <li>A GraphQL API</li>
+    </ul>
+
+    <h2>REST API</h2>
+
+    <p>The REST API can be queried either to retrieve data for all of the restaurants, or for a single restaurant</p>
+    <p>The endpoints are:</p>
+
+    <ul>
+        <li>
+            <code>
+                /api/v1/restaurants
+            </code>
+        </li>
+        <li>
+            <code>
+                /api/v1/formatted
+            </code>
+        </li>
+        <li>
+            <code>
+                /api/v1/restaurants/{restaurant_name}
+            </code>
+        </li>
+    </ul>
+
+    <h4><code>/api/v1/restaurants</code></h4>
+
+    <ul>
+        <li>Returns all of the restaurants and their respective info</li>
+        <li>
+            Contains also:
+            <ul>
+                <li><code>updatedAt</code> timestamp when the data was updated</li>
+                <li><code>source</code> source of the data</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h4><code>/api/v1/formatted</code></h4>
+
+    <ul>
+        <li>
+            Get the data only for the restaurants
+            <ul>
+                <li>Basically a JSON file with 5 items</li>
+            </ul>
+        </li>
+        <li>This omits timestamp and source from the JSON file</li>
+    </ul>
+
+    <h4><code>/api/v1/restaurants/{restaurant_name}</code></h4>
+
+    <ul>
+        <li>Returns info for a single restaurant</li>
+        <li>Does not contain timestamps or datasource</li>
+        <li>Capitalization-agnostic, all letters can be upper- or lowercase</li>
+        <li>
+            Restaurants that are available
+            <ul>
+                <li>Arken</li>
+                <li>Astra</li>
+                <li>Aurum</li>
+                <li>Aurum Bistro</li>
+                <li>
+                    Kåren
+                    <ul>
+                        <li>Switch å → a in the URL</li>
+                        <li>For example: <code>/restaurants/karen</code></li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+    <h2>Graphql API</h2>
+
+    <p>Graphql API is more flexible in its use because the user can themselves define what information the API returns</p>
+    <p>The Graphql API can be used to query all of the restaurants at the same time, or just a single restaurant</p>
+    <p>When querying a single restaurant, the restaurants name is used as the parameter search term</p>
+
+    <p>The function to query all restaurants is <code>allRestaurants</code></p>
+    <p>All possible information that can be queried in Graphql</p>
+
+    <code>
+        <p>
+            query allRestaurants { <br>
+            &emsp;allRestaurants { <br>
+            &emsp;&emsp;name <br>
+            &emsp;&emsp;openingHours <br>
+            &emsp;&emsp;foodItems { <br>
+            &emsp;&emsp;&emsp;name <br>
+            &emsp;&emsp;&emsp;allergens <br>
+            &emsp;&emsp;&emsp;macros { <br>
+            &emsp;&emsp;&emsp;&emsp;energi { <br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;amount <br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;quantity <br>
+            &emsp;&emsp;&emsp;&emsp;fett { <br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;amount <br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;quantity <br>
+            &emsp;&emsp;&emsp;&emsp;kolhydrater { <br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;amount <br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;quantity <br>
+            &emsp;&emsp;&emsp;&emsp;protein { <br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;amount <br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;quantity <br>
+            &emsp;&emsp;&emsp;&emsp;salt { <br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;amount <br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;quantity <br>
+            &emsp;&emsp;&emsp;&emsp;} <br>
+            &emsp;&emsp;&emsp;} <br>
+            &emsp;&emsp;&emsp;priceGroup <br>
+            &emsp;&emsp;&emsp;prices { <br>
+            &emsp;&emsp;&emsp;&emsp;studerande <br>
+            &emsp;&emsp;&emsp;&emsp;forskarstuderande <br>
+            &emsp;&emsp;&emsp;&emsp;personal <br>
+            &emsp;&emsp;&emsp;&emsp;andra <br>
+            &emsp;&emsp;&emsp;} <br>
+            &emsp;&emsp;} <br>
+            &emsp;} <br>
+            }
+        </p>
+    </code>
+
+    <p>A single restaurant can be queried with the same parameters as above</p>
+    <p>The function for a single restaurant is <code>restaurantByName(name: "restaurants-name-here")</code></p>
+
+    <code>
+        <p>
+            query restaurant { <br>
+            &emsp;restaurantByName(name: "restaurants-name-here") { <br>
+            &emsp;&emsp;name <br>
+            &emsp;&emsp;... <br>
+            &emsp;} <br>
+            }
+        </p>
+    </code>
+
+    <br>
+<footer>
+    <ul class="footerInfoList">
+        <li><p>This project has no affiliation with Kårkaféerna or Åbo Akademi</p></li>
+        <li><p>This is a student project</p></li>
+        <li><p>This project is still in development</p></li>
+    </ul>
+    <ul>
+        <li class="footerListElement"><p><a href="https://github.com/Eikkaaaaa/karkafeernaWebScraper?tab=readme-ov-file">Github</a></p></li>
+        <li class="footerListElement"><p><a href="https://www.youtube.com/watch?v=NGcUm3Uy5rQ">More info</a></p></li>
+        <li class="footerListElement"><p><a href="mailto:einarhelkkula@gmail.com">Email me</a></p></li>
+    </ul>
+</footer>
+</body>
+</html>
