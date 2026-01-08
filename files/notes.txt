@@ -15,3 +15,10 @@ Topmost class
     AllRestaurants that has 1 attribute:
         SetList<Restaurant> that holds all the restaurants
 
+------------------------------------------------------------------------
+
+"name":"asdasd"
+"prices":{
+    "studerande":3.1,
+    "forskarstuderande"6.2
+}

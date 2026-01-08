@@ -1,0 +1,68 @@
+type Restaurant {
+    name: String
+    openingHours: String
+    foodItems: [FoodItem]
+}
+
+type FoodItem {
+    name: String
+    allergens: [String]
+    macros: Macros
+    priceGroup: String
+    prices: Prices
+}
+
+type Macros {
+    energi: Energi
+    fett: Fett
+    kolhydrater: Kolhydrater
+    protein: Protein
+    salt: Salt
+}
+
+type Energi implements Macro{
+    amount: Float
+    quantity: String
+}
+
+type Fett implements Macro{
+    amount: Float
+    quantity: String
+}
+
+type Kolhydrater implements Macro{
+    amount: Float
+    quantity: String
+}
+
+type Protein implements Macro{
+    amount: Float
+    quantity: String
+}
+
+type Salt implements Macro{
+    amount: Float
+    quantity: String
+}
+
+interface Macro {
+    amount: Float
+    quantity: String
+}
+
+type Prices {
+    studerande: Float
+    forskarstuderande: Float
+    personal: Float
+    andra: Float
+}
+
+type Price {
+    name: String
+    amount: Float
+}
+
+type Query {
+    restaurantByName(name: String): Restaurant
+    allRestaurants: [Restaurant]
+}

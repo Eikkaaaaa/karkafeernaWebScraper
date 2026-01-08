@@ -20,6 +20,10 @@ public class AllRestaurants {
         restaurants.add(restaurant);
     }
 
+    public LinkedHashSet<Restaurant> getRestaurants() {
+        return restaurants;
+    }
+
     @Override
     public String toString() {
         return "AllRestaurants{" +

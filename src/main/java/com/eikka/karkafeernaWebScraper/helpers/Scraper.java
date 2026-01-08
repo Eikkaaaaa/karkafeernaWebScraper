@@ -3,7 +3,9 @@ package com.eikka.karkafeernaWebScraper.helpers;
 import com.eikka.karkafeernaWebScraper.components.AllRestaurants;
 import com.eikka.karkafeernaWebScraper.components.Meal;
 import com.eikka.karkafeernaWebScraper.components.Restaurant;
-import com.eikka.karkafeernaWebScraper.components.*;
+import com.eikka.karkafeernaWebScraper.components.Prices;
+import com.eikka.karkafeernaWebScraper.components.macros.MacroTuple;
+import com.eikka.karkafeernaWebScraper.components.macros.Macros;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -44,7 +46,7 @@ public class Scraper {
     private void addRestaurantToList(Elements elements, AllRestaurants allRestaurants) {
 
         String[] mealSkipList = {
-                "GALLERIET (11-14.30)", "ASTRA DELIGHTS (10.30-14.00)"
+                "GALLERIET (11-14.30)", "ASTRA DELIGHTS (10.30-14.00)", "BUFFÉ SOLSIDAN (11-14)"
         };
 
         for (Element element : elements) {
@@ -54,7 +56,7 @@ public class Scraper {
 
             String openingHours = getOpeningHours(element);
 
-            Restaurant restaurant = new Restaurant(restaurantName,  openingHours);
+            Restaurant restaurant = new Restaurant(restaurantName, openingHours);
 
             // Get all meal items for current restaurant
             Elements meals = element.getElementsByClass("meal");
@@ -62,10 +64,16 @@ public class Scraper {
             // Loop through every single meal
             for (Element meal : meals) {
                 Meal m = getMealInfo(meal);
-                if (!Arrays.asList(mealSkipList).contains(m.name())) {
+
+                boolean isAstrasOpeningHour = Arrays.asList(mealSkipList).contains(m.name());
+                boolean isAlreadyAddedToMeals = restaurant.getFoodItems().stream().anyMatch(foodItem -> foodItem.name().equals(m.name()));
+
+                // If meal is not Astras opening hours, and not already on the meal list, add it to meals
+                if (!isAstrasOpeningHour && !isAlreadyAddedToMeals) {
                     restaurant.addMeal(m);
                 }
             }
+
             allRestaurants.addRestaurant(restaurant);
         }
     }
@@ -97,68 +105,50 @@ public class Scraper {
         // Get each allergen for a single meal
         List<String> allergens = meal.getElementsByClass("food-diet").eachAttr("title");
 
-        // Get extra macros for a meal
-        // If no macros are present the then Map will be empty
-        LinkedHashMap<String, Float> macros = new LinkedHashMap<>();
+        // Empty Macros element to hold macros
+        Macros macros = new Macros();
+
         if(meal.getElementsByClass("food").hasAttr("title")){
-            macros = formatMacros(meal.getElementsByClass("food").attr("title"));
+            macros = extractMacros(meal.getElementsByClass("food").attr("title"));
         }
 
         // Get the price group of the meal
         String priceGroup = meal.getElementsByClass("group-title").text();
 
         // Get the prices for the meal
-        LinkedHashMap<String, Float> prices = getPrices(meal);
+        Prices prices = extractAllPrices(meal);
 
         // Create a meal object from the fetched meal info
         return new Meal(mealName, new LinkedHashSet<>(allergens), macros, priceGroup, prices);
     }
 
-    private LinkedHashMap<String, Float> getPrices(Element element){
-
-        // Get the "class=info" elements that contain the prices
-        Elements updatedMeal = element.getElementsByClass("info");
-
-        LinkedHashMap<String, Float> prices = new LinkedHashMap<>();
-
-        for(Element updatedMealInfo : updatedMeal){
-
-            // Get the second sub-element from the updatedMealInfo Element
-            String originalPrices = updatedMealInfo.children().get(1).text();
-
-            if (!originalPrices.isEmpty()){
-
-                // Format the string if the prices are present
-                prices = formatPrices(originalPrices);
-            }
-        }
-        return prices;
-    }
-
     /**
      * Helper class to format the macro string to a proper key-value pair hashmap
-     * @param macros String containing all the macros
+     * @param macroString String containing all the macros
      * @return Formatted key value pair containing units and their respective amounts
      */
-    private LinkedHashMap<String, Float> formatMacros(String macros){
+    private Macros extractMacros(String macroString){
 
         // Remove the "100 g innehåller" from the string
-        String[] macroArray = macros.split(":");
+        String[] macroArray = macroString.split(":");
 
         // Make an array of each of the macros
         String[] contents = macroArray[1].trim().split(",");
 
-        LinkedHashMap<String, Float> macroMap = new LinkedHashMap<>();
+        Macros macros = new Macros();
 
         for (String content : contents) {
 
             // Separate each macro element to words and numbers
             List<String> al = new ArrayList<>(List.of(content.trim().split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)")));
 
-            // First element is the unit and second is the amount, e.g. "Energi(kcal)"
-            String unit = al.getFirst().trim() + "(" + al.getLast().trim().replace(".", "") + ")";
+            // e.g. protein
+            String unit = al.getFirst().trim().toLowerCase();
 
-            // Remove first and last, e.g. "Energi" & kcal
+            // e.g. kcal
+            String testQuantity = al.getLast().replace(".", "");
+
+            // Remove first and last, e.g. energi & kcal
             al.removeFirst();
             al.removeLast();
 
@@ -169,42 +159,68 @@ public class Scraper {
                 sb.append(s);
             }
 
+            // float amount of the current unit
             float amount = Float.parseFloat(sb.toString());
 
-            macroMap.put(unit, amount);
+            MacroTuple<Float, String> macroTuple = new MacroTuple<>(amount, testQuantity);
+            macros.mapMacros(unit, macroTuple);
         }
 
-        return macroMap;
+        return macros;
     }
 
     /**
-     * Parses the prices from the input string and picks the clientele
-     * and matches them with the correct pricing, converting the price from String to a Float
-     * @param pricesString The string containing all the prices
-     * @return A Linked hashMap that contains the clientele with their respective pricing as a key-value pair
+     * Parses the {@link Element} object to a {@link String} that can be used to extract prices
+     * @param element Containing HTML code where the prices are
+     * @return {@link Prices} Object containing all the prices
      */
-    private LinkedHashMap<String, Float> formatPrices(String pricesString){
+    private Prices extractAllPrices(Element element){
+        Elements elementContainingPrices = element.getElementsByClass("info");
+        Prices prices = new Prices();
 
-        // Split the string with the € letter
-        String[] prices = pricesString.split("€");
-        LinkedHashMap<String, Float> priceMap = new LinkedHashMap<>();
+        for (Element e : elementContainingPrices) {
+            String originalPrices = e.children().get(1).text();
 
-        for (String price : prices){
-
-            // Split the string with " " and transform it to ArrayList for easy manipulation
-            String[] singlePrice = price.split(" ");
-            ArrayList<String> parts = new ArrayList<>(Arrays.asList(singlePrice));
-
-            // If the first item is empty, remove it
-            if (parts.getFirst().isEmpty()){
-                parts.removeFirst();
+            if (!originalPrices.isEmpty()){
+                prices = extractSinglePrice(originalPrices);
             }
-
-            // Put the clientele first and then convert the price to a float and ad it to map
-            priceMap.put(parts.get(0), Float.parseFloat(parts.get(1).replace(",", ".")));
         }
 
-        return priceMap;
+        return prices;
+    }
+
+    /**
+     * Parses a single {@link String} that contains all the prices for all clientele of a restaurant
+     * @param priceString {@link String} Containing all the price information in an unformatted manner
+     * @return {@link Prices} Object where the prices are mapped to each clientele
+     */
+    private Prices extractSinglePrice(String priceString){
+
+        // From original price array: Studerande 3,10 € Forskarstud. 6,20 € Personal 7,70 € Andra 9.50 €
+        // Picks singular prices: [Studerande 3,10 ,  Forskarstud. 6,20 ,  Personal 7,70 ,  Andra 9.50 ]
+        String[] singlePrice = priceString.split("€");
+
+        Prices prices = new Prices();
+
+        for (String part : singlePrice){
+            // Clean string: "Studerande 3,10 " -> "studerande 3,10"
+            part = part.trim().toLowerCase();
+
+            String[] parts = part.trim().split(" ");
+
+            if (parts[0].equals("forskarstud.")){
+                parts[0] = parts[0].replace(".", "erande");
+            }
+
+            // Pick clientele and format the price to a float
+            String clientele = parts[0];
+            float amount = Float.parseFloat(parts[1].replace(",", "."));
+
+            // Add price to the Prices object
+            prices.mapPrices(clientele, amount);
+        }
+
+        return prices;
     }
 
     /**
