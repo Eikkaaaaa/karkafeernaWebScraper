@@ -1,10 +1,10 @@
-/*
 package com.eikka.karkafeernaWebScraper.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -12,16 +12,20 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurity {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
 
-        // Deny all traffic besides traffic to the API
+        http.cors(AbstractHttpConfigurer::disable);
+
+        // Deny all traffic besides traffic to the API ang Graphql
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/api/v1/meals").permitAll()
                 .requestMatchers("/api/v1/gql").permitAll()
-                .requestMatchers("/graphql", "/graphiql").permitAll()
-                .requestMatchers("/**").permitAll());
+                .requestMatchers("/graphql").permitAll()
+                .requestMatchers("/graphiql").permitAll()
+                .requestMatchers("/**").denyAll());
+
+        http.csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
 }
- */
