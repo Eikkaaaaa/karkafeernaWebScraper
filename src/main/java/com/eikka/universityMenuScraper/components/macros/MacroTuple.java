@@ -1,4 +1,4 @@
-package com.eikka.karkafeernaWebScraper.components.macros;
+package com.eikka.universityMenuScraper.components.macros;
 
 public class MacroTuple <Float, String>{
 

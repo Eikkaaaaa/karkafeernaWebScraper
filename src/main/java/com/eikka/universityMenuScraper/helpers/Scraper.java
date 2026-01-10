@@ -1,11 +1,11 @@
-package com.eikka.karkafeernaWebScraper.helpers;
+package com.eikka.universityMenuScraper.helpers;
 
-import com.eikka.karkafeernaWebScraper.components.AllRestaurants;
-import com.eikka.karkafeernaWebScraper.components.Meal;
-import com.eikka.karkafeernaWebScraper.components.Restaurant;
-import com.eikka.karkafeernaWebScraper.components.Prices;
-import com.eikka.karkafeernaWebScraper.components.macros.MacroTuple;
-import com.eikka.karkafeernaWebScraper.components.macros.Macros;
+import com.eikka.universityMenuScraper.components.AllRestaurants;
+import com.eikka.universityMenuScraper.components.Meal;
+import com.eikka.universityMenuScraper.components.Restaurant;
+import com.eikka.universityMenuScraper.components.Prices;
+import com.eikka.universityMenuScraper.components.macros.MacroTuple;
+import com.eikka.universityMenuScraper.components.macros.Macros;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

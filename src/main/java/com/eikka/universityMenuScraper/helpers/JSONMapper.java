@@ -1,6 +1,6 @@
-package com.eikka.karkafeernaWebScraper.helpers;
+package com.eikka.universityMenuScraper.helpers;
 
-import com.eikka.karkafeernaWebScraper.components.Restaurant;
+import com.eikka.universityMenuScraper.components.Restaurant;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.scheduling.annotation.Scheduled;

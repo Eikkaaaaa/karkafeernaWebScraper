@@ -1,7 +1,7 @@
-package com.eikka.karkafeernaWebScraper.service;
+package com.eikka.universityMenuScraper.service;
 
-import com.eikka.karkafeernaWebScraper.components.Restaurant;
-import com.eikka.karkafeernaWebScraper.helpers.JSONMapper;
+import com.eikka.universityMenuScraper.components.Restaurant;
+import com.eikka.universityMenuScraper.helpers.JSONMapper;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -43,17 +43,12 @@ public class RestaurantService {
 
     public Restaurant restaurantByName(String name) throws IOException {
 
-        String search;
-
-        if (name.equalsIgnoreCase("karen")) {
-            search = "kåren";
-        } else if (name.equalsIgnoreCase("aurum-bistro")) {
-            search = "Aurum Bistro";
-        } else {
-            search = name;
-        }
-
-
+        String search = switch (name.toLowerCase()) {
+            case "karen" -> "Kåren";
+            case "aurum-bistro" -> "Aurum Bistro";
+            case "astra-solsidan" -> "Astra Solsidan";
+            default -> name;
+        };
 
         return jsonMapper.allRestaurants().stream().filter(restaurant -> restaurant.getName().equalsIgnoreCase(search)).findFirst().orElse(null);
     }

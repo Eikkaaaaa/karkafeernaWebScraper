@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.eikka</groupId>
-	<artifactId>karkafeernaWebScraper</artifactId>
+	<artifactId>universityMenuScraper</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>karkafeernaWebScraper</name>
+	<name>universityMenuScraper</name>
 	<description>Web scraper to produce a JSON file from the Kårkaféerna website</description>
 	<url/>
 	<licenses>

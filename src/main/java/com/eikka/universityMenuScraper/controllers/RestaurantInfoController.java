@@ -1,7 +1,7 @@
-package com.eikka.karkafeernaWebScraper.controllers;
+package com.eikka.universityMenuScraper.controllers;
 
-import com.eikka.karkafeernaWebScraper.components.Restaurant;
-import com.eikka.karkafeernaWebScraper.service.RestaurantService;
+import com.eikka.universityMenuScraper.components.Restaurant;
+import com.eikka.universityMenuScraper.service.RestaurantService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

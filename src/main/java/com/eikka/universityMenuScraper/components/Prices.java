@@ -1,4 +1,4 @@
-package com.eikka.karkafeernaWebScraper.components;
+package com.eikka.universityMenuScraper.components;
 
 public class Prices {
 

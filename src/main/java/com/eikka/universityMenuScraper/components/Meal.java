@@ -1,6 +1,6 @@
-package com.eikka.karkafeernaWebScraper.components;
+package com.eikka.universityMenuScraper.components;
 
-import com.eikka.karkafeernaWebScraper.components.macros.Macros;
+import com.eikka.universityMenuScraper.components.macros.Macros;
 
 import java.util.Set;
 

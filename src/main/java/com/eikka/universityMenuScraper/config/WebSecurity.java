@@ -1,4 +1,4 @@
-package com.eikka.karkafeernaWebScraper.config;
+package com.eikka.universityMenuScraper.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

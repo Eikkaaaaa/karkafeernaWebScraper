@@ -1,6 +1,6 @@
-package com.eikka.karkafeernaWebScraper;
+package com.eikka.universityMenuScraper;
 
-import com.eikka.karkafeernaWebScraper.helpers.JSONMapper;
+import com.eikka.universityMenuScraper.helpers.JSONMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -9,10 +9,10 @@ import java.io.IOException;
 
 @SpringBootApplication
 @EnableScheduling
-public class karkafeernaWebScraper {
+public class universityMenuScraper {
 
 	static void main(String[] args) throws IOException {
-		SpringApplication.run(karkafeernaWebScraper.class, args);
+		SpringApplication.run(universityMenuScraper.class, args);
 
 		JSONMapper jsonMapper = new JSONMapper();
 		jsonMapper.createJSONFile();

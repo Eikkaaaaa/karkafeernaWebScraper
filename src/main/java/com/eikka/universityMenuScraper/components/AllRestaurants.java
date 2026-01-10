@@ -1,4 +1,4 @@
-package com.eikka.karkafeernaWebScraper.components;
+package com.eikka.universityMenuScraper.components;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

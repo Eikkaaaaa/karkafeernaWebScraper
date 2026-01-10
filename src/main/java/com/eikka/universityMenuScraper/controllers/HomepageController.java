@@ -1,4 +1,4 @@
-package com.eikka.karkafeernaWebScraper.controllers;
+package com.eikka.universityMenuScraper.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
