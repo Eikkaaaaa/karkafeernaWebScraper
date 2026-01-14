@@ -57,106 +57,43 @@ public class UnicaScraper {
 
         LinkedHashSet<Restaurant> restaurants = new LinkedHashSet<>();
         Map<String, Elements> restaurantHTML = this.scrapeRestaurants();
-
-        for (Map.Entry<String, Elements> list : restaurantHTML.entrySet()) {
-            Restaurant restaurant = new Restaurant(list.getKey());
-
-            String openingHours = UnicaExtractor.extractOpeningHours(list.getValue());
-            restaurant.setOpeningHours(openingHours);
-
-            for (Element element : list.getValue()) {
-
-                // Get a list of "stations" that have separate serving hours, e.g. "STATION 1-2 10.30-15.00"
-                Elements meals = element.getElementsByClass("lunch-menu-block__menu-package");
-
-                for (Element meal : meals) {
-
-                    String station = Objects.requireNonNull(meal.selectFirst("h5")).text();
-                    String mealPrices = Objects.requireNonNull(meal.selectFirst("p")).text();
-
-                    Elements singleMeals = meal.getElementsByClass("meal-item");
-
-                    for (Element singleMeal : singleMeals) {
-
-                        String mealName = UnicaExtractor.extractMealName(singleMeal, station);
-
-                        if (mealName.startsWith(" [")) break;
-
-                        Set<String> allergens = UnicaExtractor.extractAllergens(singleMeal);
-
-                        Macros macros;
-                        macros = extractMacros(singleMeal);
-
-                        Prices prices = new Prices(UnicaExtractor.extractPrices(mealPrices));
-                        String priceGroup = getPriceGroup(prices);
-
-
-                        Meal mealItem = new Meal(mealName, allergens, macros, priceGroup, prices);
-
-                        restaurant.addMeal(mealItem);
-                    }
-                }
-            }
-            restaurants.add(restaurant);
-        }
+        
+        addRestaurantToList(restaurants, restaurantHTML);
 
         return restaurants;
     }
-
-    private static Macros extractMacros(Element element) {
-
-        Macros macros = new Macros();
-
-        try {
-            // Remove the "Per 100g" text from the table
-            element.getElementsByTag("tr").getFirst().remove();
-        } catch (NoSuchElementException _) { return null; }
-
-        Elements tableRows = element.getElementsByTag("tr");    // Get each row of nutrients
-
-        float cals = extractCalories(tableRows.getFirst()); // Get calories from the first row
-        MacroTuple<Float, String> calories = new MacroTuple<>(cals, "kcal");
-        macros.setCalories(calories);
-
-        tableRows.removeFirst();
-
-        for (Element tableRow : tableRows) {
-            extractOtherMacros(macros, tableRow);
+    
+    private static void addRestaurantToList(LinkedHashSet<Restaurant> restaurants, Map<String, Elements> restaurantHTML) {
+        
+        for (Map.Entry<String, Elements> list : restaurantHTML.entrySet()) {
+            Restaurant restaurant = new Restaurant(list.getKey());
+            
+            String openingHours = UnicaExtractor.extractOpeningHours(list.getValue());
+            restaurant.setOpeningHours(openingHours);
+            
+            for (Element element : list.getValue()) {
+                
+                // Get a list of "stations" that have separate serving hours, e.g. "STATION 1-2 10.30-15.00"
+                Elements meals = element.getElementsByClass("lunch-menu-block__menu-package");
+                
+                addMealToRestaurant(restaurant, meals);
+                
+            }
+            restaurants.add(restaurant);
         }
-
-        return macros;
     }
-
-    private static void extractOtherMacros(Macros macs, Element element) {
-        if (element.text().toLowerCase().startsWith("saturated")) return;
-        String[] macros = element.text().toLowerCase().trim().split(" ");
-
-        String name = macros[0].toLowerCase();
-        float amount = Float.parseFloat(macros[1]);
-        String quantity = macros[2].toLowerCase();
-
-        MacroTuple<Float, String> macro = new MacroTuple<>(amount, quantity);
-
-        macs.mapMacros(name, macro);
-    }
-
-    private static float extractCalories(Element element) {
-        String calorieString = element.getAllElements().getLast().text();   // Returns e.g. "754 kJ, 180 kcal"
-        String[] parts = calorieString.split(" ");
-        return Float.parseFloat(parts[parts.length - 2]);
-    }
-
-    private static String getPriceGroup(Prices prices) {
-        float studentPrice = prices.getStudents();
-
-        if (studentPrice < 2.8) {
-            return "Other";
-        }  else if (studentPrice < 3.3) {
-            return "Normal";
-        } else if (studentPrice < 5.7) {
-            return "Deli";
-        }  else {
-            return "Special";
+    
+    private static void addMealToRestaurant(Restaurant restaurant, Elements meals) {
+        
+        for (Element meal : meals) {
+            
+            String station = Objects.requireNonNull(meal.selectFirst("h5")).text();
+            String mealPrices = Objects.requireNonNull(meal.selectFirst("p")).text();
+            
+            Elements singleMeals = meal.getElementsByClass("meal-item");
+            
+            UnicaExtractor.extractSingleMeal(restaurant, singleMeals, station, mealPrices);
+            
         }
     }
 

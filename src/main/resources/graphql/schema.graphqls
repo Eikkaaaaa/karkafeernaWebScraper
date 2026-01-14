@@ -45,6 +45,11 @@ type Salt implements Macro{
     quantity: String
 }
 
+type Sugar implements Macro{
+    amount: Float
+    quantity: String
+}
+
 interface Macro {
     amount: Float
     quantity: String

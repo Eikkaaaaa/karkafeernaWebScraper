@@ -43,14 +43,15 @@ public class RestaurantService {
 
     public Restaurant restaurantByName(String name) throws IOException {
 
+        name = name.replaceAll("-", " ");
+        
         String search = switch (name.toLowerCase()) {
-            case "karen" -> "Kåren";
-            case "aurum-bistro" -> "Aurum Bistro";
-            case "astra-solsidan" -> "Astra Solsidan";
+            case "karen" -> "kåren";
+            case "kisalli" -> "kisälli";
+            case "henkilostoravintola-waino"  -> "henkilöstöravintola häinö";
+            case "lemminkainen" -> "lemminkäinen";
             default -> name;
         };
-
-        //IO.println(jsonMapper.allRestaurants().stream().filter(restaurant -> restaurant.getName().equalsIgnoreCase(search)).findFirst().orElse(null));
 
         return jsonMapper.allRestaurants().stream().filter(restaurant -> restaurant.getName().equalsIgnoreCase(search)).findFirst().orElse(null);
     }

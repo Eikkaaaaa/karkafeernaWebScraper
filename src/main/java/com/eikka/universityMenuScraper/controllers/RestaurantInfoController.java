@@ -31,7 +31,6 @@ public class RestaurantInfoController {
     public ResponseEntity<Restaurant> getRestaurant(@PathVariable String name) throws IOException {
         Restaurant restaurant = restaurantService.restaurantByName(name);
         if (restaurant != null) {
-            IO.println(restaurant.getFoodItems().getFirst().prices());
             return ResponseEntity.ok().body(restaurant);
         }
         return ResponseEntity.notFound().build();

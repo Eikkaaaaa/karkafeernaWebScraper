@@ -31,6 +31,14 @@ public class Restaurant {
     public LinkedHashSet<Meal> getFoodItems() {
         return foodItems;
     }
+    
+    public boolean containsSameMeal(String mealName){
+        
+        for (Meal meal : foodItems){
+            if (meal.name().equals(mealName)) return true;
+        }
+        return false;
+    }
 
     @Override
     public String toString() {
