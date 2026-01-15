@@ -48,7 +48,7 @@ public class RestaurantService {
         String search = switch (name.toLowerCase()) {
             case "karen" -> "kåren";
             case "kisalli" -> "kisälli";
-            case "henkilostoravintola-waino"  -> "henkilöstöravintola häinö";
+            case "henkilostoravintola waino"  -> "henkilöstöravintola wäinö";
             case "lemminkainen" -> "lemminkäinen";
             default -> name;
         };

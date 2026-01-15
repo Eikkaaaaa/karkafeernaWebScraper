@@ -2,35 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>skol mat REST API</title>
+    <title>Turku student meal REST API</title>
     <style>
         body {
             background-color: #131313;
             font-family: Arial, Helvetica, sans-serif;
         }
-        h1 {
-            color: #F1F5F9;
-        }
-        h2{
-            color: #F1F5F9;
-        }
-        h3 {
-            color: #F1F5F9;
-        }
-        h4 {
-            color: #F1F5F9;
-        }
-        ul {
-            color: #F1F5F9
-        }
-        p {
-            color: #F1F5F9;
-        }
-        code {
+        h1, h2, h3, h4, ul, p, code, a {
             color: #F1F5F9;
         }
         a {
-            color: #F1F5F9;
             text-decoration: none;
         }
         .footerInfoList {
@@ -46,110 +27,235 @@
         }
     </style>
 </head>
+
 <body style="padding: 40px">
-    <h1>Skol mat REST API</h1>
+<h1>Turku school meal REST API</h1>
 
-    <p>This api is a webscraper that fetches data daily from Kårkaféernas website and then parses it to a JSON that can later be queried</p>
-    <p>The program scrapes data only one single time a day and saves it to a file locally on the server</p>
-    <p>When the API is queried, the program fetches the data from said file and sends it to the client</p>
+<p>
+    This API is a Spring Boot–based web scraper that fetches data daily from
+    Kårkaféerna and all Unica restaurant websites, then parses the data into a
+    format that can later be queried.
+</p>
 
-    <h4>The API can be queried in two ways</h4>
-    <ul>
-        <li>Normal HTTP REST API</li>
-        <li>A GraphQL API</li>
-    </ul>
+<p>
+    The program scrapes data only once per day and saves it locally on the
+    server, thereby limiting page visits to a single request per website per day.
+    When fetching data for Unica restaurants, the application visits each
+    restaurant page individually and scrapes the data using a Selenium-driven
+    Chromium browser.
+</p>
 
-    <h2>REST API</h2>
+<p>
+    Unica's webpages are built with Vue, and food macros are hidden behind a
+    "hamburger menu." This requires Selenium to open each menu individually
+    before scraping the data. In some cases, a menu may be located outside the
+    visible browser viewport. When this happens, the food name can be scraped,
+    but the macro window cannot be opened.
+    Additionally, website theme or layout issues may occasionally prevent
+    Selenium from opening a page correctly, which can again result in corrupted
+    data. Corrupted data appears as <code>null</code> values when querying the API.
+</p>
 
-    <p>The REST API can be queried either to retrieve data for all of the restaurants, or for a single restaurant</p>
-    <p>The endpoints are:</p>
+<p>
+    When the API is queried, the application reads the data from a locally stored
+    JSON file and returns it to the client.
+</p>
 
-    <ul>
-        <li>
-            <code>
-                /api/v1/restaurants
-            </code>
-        </li>
-        <li>
-            <code>
-                /api/v1/formatted
-            </code>
-        </li>
-        <li>
-            <code>
-                /api/v1/restaurants/{restaurant_name}
-            </code>
-        </li>
-    </ul>
+<p>
+    The API also provides a GraphQL endpoint, allowing users to tailor the
+    returned data to their specific needs.
+</p>
 
-    <h4><code>/api/v1/restaurants</code></h4>
+<h4>The API can be queried in two ways</h4>
+<ul>
+    <li>Standard HTTP REST API</li>
+    <li>GraphQL API</li>
+</ul>
 
-    <ul>
-        <li>Returns all of the restaurants and their respective info</li>
-        <li>
-            Contains also:
-            <ul>
-                <li><code>updatedAt</code> timestamp when the data was updated</li>
-                <li><code>source</code> source of the data</li>
-            </ul>
-        </li>
-    </ul>
+<h2>REST API</h2>
 
-    <h4><code>/api/v1/formatted</code></h4>
+<p>
+    The REST API can be queried to retrieve data for all restaurants or for a
+    single restaurant.
+</p>
 
-    <ul>
-        <li>
-            Get the data only for the restaurants
-            <ul>
-                <li>Basically a JSON file with 5 items</li>
-            </ul>
-        </li>
-        <li>This omits timestamp and source from the JSON file</li>
-    </ul>
+<p>The available endpoints are:</p>
 
-    <h4><code>/api/v1/restaurants/{restaurant_name}</code></h4>
+<ul>
+    <li><code>/api/v1/restaurants</code></li>
+    <li><code>/api/v1/formatted</code></li>
+    <li><code>/api/v1/restaurants/{restaurant_name}</code></li>
+    <li><code>/graphql</code></li>
+</ul>
 
-    <ul>
-        <li>Returns info for a single restaurant</li>
-        <li>Does not contain timestamps or datasource</li>
-        <li>
-            Capitalization-agnostic
-            <ul>
-                <li>All letters can be upper- or lowercase</li>
-            </ul>
-        </li>
-        <li>
-            Restaurants that are available
-            <ul>
-                <li>Arken</li>
-                <li>Astra</li>
-                <li>Aurum</li>
-                <li>
-                    Aurum Bistro
-                    <ul>
-                        <li>Write query with "-" instead of space bar</li>
-                        <li>For example: <code>/restaurants/Aurum-Bistro</code></li>
-                    </ul>
-                </li>
-                <li>
-                    Kåren
-                    <ul>
-                        <li>Switch å → a in the URL</li>
-                        <li>For example: <code>/restaurants/karen</code></li>
-                    </ul>
-                </li>
-            </ul>
-        </li>
-    </ul>
+<h4><code>/api/v1/restaurants</code></h4>
 
-    <h2>Graphql API</h2>
+<ul>
+    <li>Returns all restaurants and their associated information</li>
+    <li>
+        Also includes:
+        <ul>
+            <li><code>updatedAt</code> – timestamp indicating when the data was last updated</li>
+            <li><code>source</code> – data source</li>
+        </ul>
+    </li>
+</ul>
 
-    <p>Graphql API is more flexible in its use because the user can themselves define what information the API returns</p>
-    <p>The Graphql API can be used to query all of the restaurants at the same time, or just a single restaurant</p>
-    <p>When querying a single restaurant, the restaurants name is used as the parameter search term</p>
+<h4><code>/api/v1/formatted</code></h4>
 
-    <p>The function to query all restaurants is <code>allRestaurants</code></p>
-    <p>All possible information that can be queried in Graphql</p>
+<ul>
+    <li>
+        Returns only restaurant data
+        <ul>
+            <li>Effectively a JSON file containing all food items</li>
+        </ul>
+    </li>
+    <li>Omits timestamp and source information</li>
+</ul>
+
+<h4><code>/api/v1/restaurants/{restaurant_name}</code></h4>
+
+<ul>
+    <li>Returns information for a single restaurant</li>
+    <li>Does not include timestamps or data source information</li>
+    <li>
+        Capitalization-agnostic
+        <ul>
+            <li>Restaurant names may be provided in upper- or lowercase</li>
+        </ul>
+    </li>
+    <li>
+        Available restaurants:
+        <ul>
+            <li>Arken</li>
+            <li>Astra</li>
+            <li>Aurum</li>
+            <li>
+                Aurum Bistro
+                <ul>
+                    <li>Use "-" instead of spaces</li>
+                    <li><code>/restaurants/aurum-bistro</code></li>
+                </ul>
+            </li>
+            <li>
+                Kåren
+                <ul>
+                    <li>Replace å with a</li>
+                    <li><code>/restaurants/karen</code></li>
+                </ul>
+            </li>
+            <li>
+                Assarin Ullakko
+                <ul>
+                    <li><code>/restaurants/assarin-ullakko</code></li>
+                </ul>
+            </li>
+            <li>Galilei</li>
+            <li>Macciavelli</li>
+            <li>
+                Monttu ja Mercatori
+                <ul>
+                    <li><code>/restaurants/monttu-ja-mercatori</code></li>
+                </ul>
+            </li>
+            <li>
+                Deli Pharma
+                <ul>
+                    <li><code>/restaurants/deli-pharma</code></li>
+                </ul>
+            </li>
+            <li>Delica</li>
+            <li>Dental</li>
+            <li>
+                Kisälli
+                <ul>
+                    <li>Replace ä with a</li>
+                    <li><code>/restaurants/kisalli</code></li>
+                </ul>
+            </li>
+            <li>Linus</li>
+            <li>Sigyn</li>
+            <li>
+                Unican Kulma
+                <ul>
+                    <li><code>/restaurants/unican-kulma</code></li>
+                </ul>
+            </li>
+            <li>
+                Fabrik Café
+                <ul>
+                    <li>Replace é with e</li>
+                    <li><code>/restaurants/fabrik-cafe</code></li>
+                </ul>
+            </li>
+            <li>
+                Piccu Maccia
+                <ul>
+                    <li><code>/restaurants/piccu-maccia</code></li>
+                </ul>
+            </li>
+            <li>
+                Puutorin Nurkka
+                <ul>
+                    <li><code>/restaurants/puutorin-nurkka</code></li>
+                </ul>
+            </li>
+            <li>
+                Henkilöstöravintola Wäinö
+                <ul>
+                    <li><code>/restaurants/henkilostoravintola-waino</code></li>
+                </ul>
+            </li>
+            <li>Kaffeli</li>
+            <li>Kaivomestari</li>
+            <li>
+                Lemminkäinen
+                <ul>
+                    <li><code>/restaurants/lemminkainen</code></li>
+                </ul>
+            </li>
+            <li>Mairela</li>
+            <li>Rammeri</li>
+            <li>Ruokakello</li>
+        </ul>
+    </li>
+</ul>
+
+<h2>GraphQL API</h2>
+
+<p>
+    The GraphQL API provides a flexible alternative to the REST endpoints.
+    Unlike REST, where each endpoint returns a fixed data structure, GraphQL
+    allows the client to explicitly define which fields are returned and how
+    deeply nested the response should be.
+</p>
+
+<p>
+    The GraphQL API can be used to query all restaurants at once or a single
+    restaurant by name. This makes GraphQL especially useful when the client only needs a subset
+    of the available data or wants to avoid over-fetching unnecessary fields.
+</p>
+
+<h3>Endpoint</h3>
+
+<p>
+    All GraphQL queries are sent as HTTP <code>POST</code> requests to the
+    following endpoint:
+</p>
+
+<pre><code>/graphql</code></pre>
+
+<h3>Available Queries</h3>
+
+<ul>
+    <li><code>allRestaurants</code> – Returns all available restaurants</li>
+    <li>
+        <code>restaurantByName(name: String!)</code> – Returns a single restaurant
+        by name
+    </li>
+</ul>
+
+<p>All available fields that can be queried via GraphQL are shown below:</p>
 
     <code>
         <p>
@@ -177,13 +283,17 @@
             &emsp;&emsp;&emsp;&emsp;&emsp;amount <br>
             &emsp;&emsp;&emsp;&emsp;&emsp;quantity <br>
             &emsp;&emsp;&emsp;&emsp;} <br>
+            &emsp;&emsp;&emsp;&emsp;sugar { <br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;amount <br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;quantity <br>
+            &emsp;&emsp;&emsp;&emsp;} <br>
             &emsp;&emsp;&emsp;} <br>
             &emsp;&emsp;&emsp;priceGroup <br>
             &emsp;&emsp;&emsp;prices { <br>
-            &emsp;&emsp;&emsp;&emsp;studerande <br>
-            &emsp;&emsp;&emsp;&emsp;forskarstuderande <br>
-            &emsp;&emsp;&emsp;&emsp;personal <br>
-            &emsp;&emsp;&emsp;&emsp;andra <br>
+            &emsp;&emsp;&emsp;&emsp;students <br>
+            &emsp;&emsp;&emsp;&emsp;researcher_students <br>
+            &emsp;&emsp;&emsp;&emsp;staff <br>
+            &emsp;&emsp;&emsp;&emsp;others <br>
             &emsp;&emsp;&emsp;} <br>
             &emsp;&emsp;} <br>
             &emsp;} <br>
@@ -206,9 +316,11 @@
     </code>
 
     <br>
+    <br>
+    <br>
 <footer>
     <ul class="footerInfoList">
-        <li><p>This project has no affiliation with Kårkaféerna or Åbo Akademi</p></li>
+        <li><p>This project has no affiliation with Kårkaféerna, Unica, Åbo Akademi or University of Turku</p></li>
         <li><p>This is a student project</p></li>
         <li><p>This project is still in development</p></li>
     </ul>

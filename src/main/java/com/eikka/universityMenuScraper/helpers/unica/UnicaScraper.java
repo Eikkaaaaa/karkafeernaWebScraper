@@ -1,10 +1,6 @@
 package com.eikka.universityMenuScraper.helpers.unica;
 
-import com.eikka.universityMenuScraper.components.Meal;
-import com.eikka.universityMenuScraper.components.Prices;
 import com.eikka.universityMenuScraper.components.Restaurant;
-import com.eikka.universityMenuScraper.components.macros.MacroTuple;
-import com.eikka.universityMenuScraper.components.macros.Macros;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,13 +14,11 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UnicaScraper {
 
-    public boolean isScrapingDone;
     private final Logger logger = Logger.getLogger(UnicaScraper.class.getName());
     private final String[] restaurantURLs = {
             "https://www.unica.fi/en/restaurants/university-campus/assarin-ullakko/",
@@ -52,7 +46,29 @@ public class UnicaScraper {
 
     public UnicaScraper() {
     }
-
+    
+    /**
+     * Orchestrates the full scraping and transformation pipeline for Unica restaurants.
+     *
+     * <p>This method performs the following high-level steps:</p>
+     * <ol>
+     *   <li>Invokes {@link #scrapeRestaurants()} to fetch and scrape raw HTML content
+     *       for each configured restaurant page.</li>
+     *   <li>Transforms the scraped HTML fragments into structured
+     *       {@link Restaurant} domain objects.</li>
+     *   <li>Returns a deterministic, insertion-ordered set of restaurants.</li>
+     * </ol>
+     *
+     * <p>A {@link LinkedHashSet} is used to preserve insertion order while preventing
+     * duplicate restaurants in cases where the scraper is re-run or URLs overlap.</p>
+     *
+     * <p>This method represents the public entry point of the Unica scraping workflow
+     * and guarantees that returned {@link Restaurant} objects are fully populated
+     * with opening hours and meal data.</p>
+     *
+     * @return a {@link LinkedHashSet} of fully populated {@link Restaurant} objects,
+     *         one per successfully scraped restaurant page
+     */
     public LinkedHashSet<Restaurant> getAllRestaurants() {
 
         LinkedHashSet<Restaurant> restaurants = new LinkedHashSet<>();
@@ -63,6 +79,34 @@ public class UnicaScraper {
         return restaurants;
     }
     
+    /**
+     * Converts raw scraped HTML fragments into structured {@link Restaurant} objects
+     * and appends them to the provided collection.
+     *
+     * <p>The input map is expected to contain:</p>
+     * <ul>
+     *   <li><b>Key:</b> Restaurant name, extracted from the page title</li>
+     *   <li><b>Value:</b> A collection of {@code lunch-day} elements representing
+     *       the full daily menu structure</li>
+     * </ul>
+     *
+     * <p>For each restaurant entry, this method:</p>
+     * <ol>
+     *   <li>Instantiates a new {@link Restaurant} with the given name.</li>
+     *   <li>Extracts and assigns opening hours using {@link UnicaExtractor}.</li>
+     *   <li>Iterates over each lunch day and delegates meal extraction
+     *       to {@link #addMealToRestaurant(Restaurant, Elements)}.</li>
+     *   <li>Adds the fully populated {@link Restaurant} to the result set.</li>
+     * </ol>
+     *
+     * <p>This method performs no scraping itself; it strictly handles transformation
+     * from HTML to domain objects.</p>
+     *
+     * @param restaurants the target collection where parsed {@link Restaurant}
+     *                    objects are added
+     * @param restaurantHTML a map containing restaurant names and their corresponding
+     *                       scraped HTML menu content
+     */
     private static void addRestaurantToList(LinkedHashSet<Restaurant> restaurants, Map<String, Elements> restaurantHTML) {
         
         for (Map.Entry<String, Elements> list : restaurantHTML.entrySet()) {
@@ -83,6 +127,35 @@ public class UnicaScraper {
         }
     }
     
+    /**
+     * Extracts individual meals from a collection of menu packages and attaches them
+     * to the given {@link Restaurant}.
+     *
+     * <p>Each menu package represents a single serving station (e.g. "STATION 1–2")
+     * with its own serving time window and pricing. This method:</p>
+     * <ol>
+     *   <li>Extracts station metadata (name and serving hours).</li>
+     *   <li>Extracts pricing information for the station.</li>
+     *   <li>Collects all individual meal items belonging to the station.</li>
+     *   <li>Delegates parsing of individual meals to {@link UnicaExtractor}.</li>
+     * </ol>
+     *
+     * <p>The HTML structure is assumed to be stable and to contain:</p>
+     * <ul>
+     *   <li>An {@code h5} element describing the station and serving hours</li>
+     *   <li>A {@code p} element describing meal prices</li>
+     *   <li>One or more {@code meal-item} elements representing individual dishes</li>
+     * </ul>
+     *
+     * <p>If any required structural element is missing, a {@link NullPointerException}
+     * will be thrown via {@link Objects#requireNonNull(Object)}, signaling a breaking
+     * change in the upstream HTML structure.</p>
+     *
+     * @param restaurant the {@link Restaurant} entity to which extracted meals
+     *                   will be attached
+     * @param meals a collection of menu package elements, each representing
+     *              a serving station and its meals
+     */
     private static void addMealToRestaurant(Restaurant restaurant, Elements meals) {
         
         for (Element meal : meals) {
@@ -96,10 +169,14 @@ public class UnicaScraper {
             
         }
     }
-
+    
+    /**
+     * <p>Handle scraping and formatting the restaurants to a list</p>
+     * <p>The key is the name of the restaurant</p>
+     * <p>Value is the body of the webpage containing all information about meals</p>
+     * @return neatly formatted map for restaurants and their meal information
+     */
     private Map<String, Elements> scrapeRestaurants() {
-
-        this.isScrapingDone = false;
 
         // Define the options with what the Selenium Chromium browser is used with
         ChromeOptions options = getChromeOptions();
@@ -140,7 +217,6 @@ public class UnicaScraper {
             }
         }
 
-        this.isScrapingDone = true;
         return list;
     }
 
@@ -193,8 +269,10 @@ public class UnicaScraper {
      * <p>Lunch from the lunch meny block element</p>
      * @param driver {@link WebDriver} instance that handles the scraping
      * @param list {@link Map} Where the menus are added to
-     *                        <p>key is the restaurants name</p>
-     *                        <p>value is the entire menu, containing all info from meals to allergens</p>
+     *                        <ul>
+     *                          <li>key is the restaurants name</li>
+     *                          <li>value is the entire menu, containing all info from meals to allergens</li>
+     *                        </ul>
      */
     private void addRestaurantToList(WebDriver driver, Map<String, Elements> list) throws InterruptedException {
 
@@ -210,15 +288,20 @@ public class UnicaScraper {
                 By.cssSelector("button.compass-accordion__header")
         );
 
+        // Open each hamburger menu in the webpage
         for (WebElement accordion : accordions) {
-
+            
+            //Scroll the accordion into the viewport to trigger IntersectionObserver callbacks and lazy Vue component rendering.
             js.executeScript(
                     "arguments[0].scrollIntoView({block: 'center'});",
                     accordion
             );
 
+            // Ensure the accordion is interactable before attempting a click
             wait.until(ExpectedConditions.elementToBeClickable(accordion));
 
+            // Expand the accordion if it is currently collapsed
+            // The expansion state is communicated via the aria-expanded attribute
             if ("false".equals(accordion.getAttribute("aria-expanded"))) {
                 accordion.click();
 
@@ -249,6 +332,8 @@ public class UnicaScraper {
             }
         }
 
+        // Custom wait condition that ensures meal items are not only present in the DOM, but also contain real rendered text.
+        // This prevents capturing the page source before Vue has finished injecting meal names and nutritional values.
         wait.until(driverInstance -> {
             List<WebElement> items = driverInstance.findElements(
                     By.cssSelector(".meal-item")
@@ -271,9 +356,12 @@ public class UnicaScraper {
 
         Document doc = Jsoup.parse(pageSource);
 
+        // Get the restaurants name from the title of the webpage
         Element titleElement = doc.selectFirst(
                 "h1[data-epi-property-name=\"Title\"]"
         );
+        
+        // If the restaurant has no name then return
         if (titleElement == null) return;
 
         String name = titleElement.text();
