@@ -6,14 +6,12 @@ import com.eikka.universityMenuScraper.helpers.karkafeerna.KarkafeernaScraper;
 import com.eikka.universityMenuScraper.helpers.unica.UnicaScraper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.jsoup.select.Elements;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class JSONMapper {
@@ -67,15 +65,5 @@ public class JSONMapper {
 
         Type restaurantType = new TypeToken<List<Restaurant>>(){}.getType();
         return GSON.fromJson(br, restaurantType);
-    }
-
-    static void main() {
-        UnicaScraper unicaScraper = new UnicaScraper();
-
-        IO.println("Is scraping done: " + unicaScraper.isScrapingDone);
-
-        unicaScraper.getAllRestaurants();
-
-        IO.println("Is scraping done: " + unicaScraper.isScrapingDone);
     }
 }

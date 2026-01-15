@@ -78,7 +78,7 @@ public class Macros {
             case "salt":
                 this.salt = tuple;
                 break;
-            case "sugar":
+            case "sugars":
                 this.sugar = tuple;
                 break;
         }

@@ -18,6 +18,7 @@ type Macros {
     carbs: Carbs
     protein: Protein
     salt: Salt
+    sugar: Sugar
 }
 
 type Calories implements Macro{
