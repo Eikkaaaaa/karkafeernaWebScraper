@@ -1,4 +1,4 @@
-# Kårkaféerna JSON API
+# Kårkaféerna and Unica JSON API
 
 ## What it is?
 
